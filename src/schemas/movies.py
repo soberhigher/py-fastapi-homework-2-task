@@ -1,6 +1,9 @@
 import datetime
+from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+MovieStatusLiteral = Literal["Released", "Post Production", "In Production"]
 
 
 class MovieBase(BaseModel):
@@ -25,13 +28,23 @@ class MovieListResponseSchema(BaseModel):
 
 
 class MovieCreateRequestSchema(MovieBase):
-    status: str
-    budget: float
-    revenue: float
+    name: str = Field(max_length=255)
+    score: float = Field(ge=0, le=100)
+    status: MovieStatusLiteral
+    budget: float = Field(ge=0)
+    revenue: float = Field(ge=0)
     country: str
     genres: list[str]
     actors: list[str]
     languages: list[str]
+
+    @field_validator("date")
+    @classmethod
+    def date_not_far_future(cls, value: datetime.date) -> datetime.date:
+        limit = datetime.date.today() + datetime.timedelta(days=365)
+        if value > limit:
+            raise ValueError("date must not be more than one year in the future")
+        return value
 
 
 class CountryResponseSchema(BaseModel):
@@ -67,10 +80,22 @@ class MovieDetailSchema(MovieCreateResponseSchema):
 
 
 class MovieUpdate(BaseModel):
-    name: str | None = None
+    name: str | None = Field(default=None, max_length=255)
     date: datetime.date | None = None
-    score: float | None = None
+    score: float | None = Field(default=None, ge=0, le=100)
     overview: str | None = None
-    status: str | None = None
-    budget: float | None = None
-    revenue: float | None = None
+    status: MovieStatusLiteral | None = None
+    budget: float | None = Field(default=None, ge=0)
+    revenue: float | None = Field(default=None, ge=0)
+
+    @field_validator("date")
+    @classmethod
+    def date_not_far_future(
+        cls, value: datetime.date | None
+    ) -> datetime.date | None:
+        if value is None:
+            return value
+        limit = datetime.date.today() + datetime.timedelta(days=365)
+        if value > limit:
+            raise ValueError("date must not be more than one year in the future")
+        return value
