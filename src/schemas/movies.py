@@ -10,21 +10,21 @@ class MovieBase(BaseModel):
     overview: str
 
 
-class MovieList(MovieBase):
+class MovieListItemSchema(MovieBase):
     id: int
 
     model_config = ConfigDict(from_attributes=True)
 
 
-class MovieFeed(BaseModel):
-    movies: list[MovieList]
+class MovieListResponseSchema(BaseModel):
+    movies: list[MovieListItemSchema]
     prev_page: str | None
     next_page: str | None
     total_pages: int
     total_items: int
 
 
-class MovieCreateRequest(MovieBase):
+class MovieCreateRequestSchema(MovieBase):
     status: str
     budget: float
     revenue: float
@@ -34,7 +34,7 @@ class MovieCreateRequest(MovieBase):
     languages: list[str]
 
 
-class CountryResponse(BaseModel):
+class CountryResponseSchema(BaseModel):
     id: int
     code: str
     name: str | None
@@ -42,35 +42,35 @@ class CountryResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class GenreActorLanguageResponse(BaseModel):
+class GenreActorLanguageResponseSchema(BaseModel):
     id: int
     name: str
 
     model_config = ConfigDict(from_attributes=True)
 
 
-class MovieCreateResponse(MovieBase):
+class MovieCreateResponseSchema(MovieBase):
     id: int
     status: str
     budget: float
     revenue: float
-    country: CountryResponse
-    genres: list[GenreActorLanguageResponse]
-    actors: list[GenreActorLanguageResponse]
-    languages: list[GenreActorLanguageResponse]
+    country: CountryResponseSchema
+    genres: list[GenreActorLanguageResponseSchema]
+    actors: list[GenreActorLanguageResponseSchema]
+    languages: list[GenreActorLanguageResponseSchema]
 
     model_config = ConfigDict(from_attributes=True)
 
 
-class MovieDetail(MovieCreateResponse):
+class MovieDetailSchema(MovieCreateResponseSchema):
     pass
 
 
 class MovieUpdate(BaseModel):
     name: str | None = None
     date: datetime.date | None = None
-    score: float| None = None
+    score: float | None = None
     overview: str | None = None
     status: str | None = None
-    budget: float| None = None
-    revenue: float| None = None
+    budget: float | None = None
+    revenue: float | None = None
